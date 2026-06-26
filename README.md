@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # DICBO School Manager
 
 A school management app for students, fees, attendance, reports, and role-based access.
@@ -22,3 +23,6 @@ A school management app for students, fees, attendance, reports, and role-based 
    ```bash
    npm run dev
    ```
+=======
+# DICBO-SCHOOL-MANAGER
+>>>>>>> a6a878e9b765e64256d52367e7299bbf1aa5e659
