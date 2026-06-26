@@ -1,5 +1,18 @@
 {
   "version": 2,
-  "buildCommand": "cd admin-dashboard && npm install && npm run build",
-  "outputDirectory": "admin-dashboard/dist"
+  "builds": [
+    {
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "(.*)",
+      "dest": "/client/dist/index.html"
+    }
+  ]
 }

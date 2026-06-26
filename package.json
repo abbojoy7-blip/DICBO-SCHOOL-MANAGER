@@ -1,36 +1,8 @@
 {
   "name": "dicbo-school-manager",
-  "version": "1.0.0",
-  "description": "School management system for students, fees, attendance and reports",
-  "main": "server.js",
+  "private": true,
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
-  },
-  "keywords": [
-    "school",
-    "management",
-    "fees",
-    "attendance",
-    "express",
-    "mongodb"
-  ],
-  "author": "",
-  "license": "MIT",
-  "dependencies": {
-    "axios": "^1.18.1",
-    "cors": "^2.8.6",
-    "dayjs": "^1.11.21",
-    "dotenv": "^16.6.1",
-    "express": "^4.22.2",
-    "mongoose": "^7.8.10",
-    "react-icons": "^5.6.0",
-    "react-router-dom": "^7.18.0",
-    "recharts": "^3.9.0",
-    "uuid": "^14.0.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
-  },
-  "type": "commonjs"
+    "install-all": "npm install --prefix client && npm install --prefix server",
+    "dev": "npm run dev --prefix client"
+  }
 }
