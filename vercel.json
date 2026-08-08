@@ -1,8 +1,9 @@
 {
   "version": 2,
+  "name": "dit-erp-portal",
   "builds": [
     {
-      "src": "client/package.json",
+      "src": "admin-dashboard/package.json",
       "use": "@vercel/static-build",
       "config": {
         "distDir": "dist"
@@ -11,8 +12,20 @@
   ],
   "routes": [
     {
-      "src": "(.*)",
-      "dest": "/client/dist/index.html"
+      "src": "/api/(.*)",
+      "dest": "https://dicbo-api-staging.onrender.com/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/admin-dashboard/dist/$1",
+      "continue": true
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/admin-dashboard/dist/index.html"
     }
-  ]
+  ],
+  "env": {
+    "VITE_API_URL": "https://dicbo-api-staging.onrender.com/api"
+  }
 }

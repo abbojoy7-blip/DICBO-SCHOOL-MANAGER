@@ -1,13 +1,21 @@
 const express = require("express");
 const router = express.Router();
+const {
+  getStudents,
+  getStudentById,
+  createStudent,
+  updateStudent,
+  deleteStudent
+} = require("../controllers/studentController");
+const roleCheck = require("../middleware/role");
 
-// DEMO DATA ONLY (NO DB)
-router.get("/", (req, res) => {
-  res.json([
-    { id: 1, name: "John Doe", class: "P5", feeStatus: "Paid" },
-    { id: 2, name: "Sarah Namukasa", class: "P6", feeStatus: "Pending" },
-    { id: 3, name: "Brian Okello", class: "P7", feeStatus: "Paid" }
-  ]);
-});
+// All routes here require 'auth' (handled in server.js)
+router.get("/", getStudents);
+router.get("/:id", getStudentById);
+
+// Administrative actions
+router.post("/", roleCheck("administrator", "receptionist"), createStudent);
+router.put("/:id", roleCheck("administrator", "receptionist"), updateStudent);
+router.delete("/:id", roleCheck("administrator"), deleteStudent);
 
 module.exports = router;

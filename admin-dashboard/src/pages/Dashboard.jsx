@@ -1,125 +1,141 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 import LoadingState from '../components/ui/LoadingState';
+import { useSettings } from '../context/SettingsContext';
 
-export default function Dashboard(){
-  const [stats, setStats] = useState({ totalStudents:0, paidFees:0, pendingFees:0, attendance:0, avgScore:0 });
+export default function Dashboard() {
+  const { settings } = useSettings();
+  const [stats, setStats] = useState({
+    totalStudents: 0,
+    totalCollected: 0,
+    attendanceToday: 0,
+    totalClasses: 0,
+    teacherCount: 0,
+    staffCount: 0,
+    targetEnrollment: 0,
+    targetRevenue: 0
+  });
   const [recent, setRecent] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  useEffect(()=>{
-    const reports = JSON.parse(localStorage.getItem('reports')||'null');
-    const payments = JSON.parse(localStorage.getItem('fees')||'[]');
-    const students = JSON.parse(localStorage.getItem('students')||'[]');
-    const attendance = JSON.parse(localStorage.getItem('attendance')||'[]');
-    const exams = JSON.parse(localStorage.getItem('exams')||'[]');
-    const nextStats = reports || { totalStudents: students.length, paidFees:0, pendingFees:0 };
-    setStats({
-      totalStudents: students.length,
-      paidFees: payments.filter(item => item.status === 'Paid').length,
-      pendingFees: payments.filter(item => item.status !== 'Paid').length,
-      attendance: Math.round((attendance.filter(item => item.status === 'Present').length / Math.max(attendance.length, 1)) * 100),
-      avgScore: Math.round(exams.reduce((sum, item) => sum + item.score, 0) / Math.max(exams.length, 1))
-    });
-    setRecent(payments.slice(0,5));
-    setLoading(false);
-  },[]);
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get('/reports/dashboard');
+      setStats(response.data.stats);
+      setRecent(response.data.recentPayments || []);
+    } catch (err) {
+      setError("Failed to load dashboard analytics.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const lineData = useMemo(() => [
-    {name:'Jan', value: 420}, {name:'Feb', value: 470}, {name:'Mar', value: 510}, {name:'Apr', value: 590}, {name:'May', value: 680}, {name:'Jun', value: 740}
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const enrollmentTrend = useMemo(() => [
+    {name:'Year 1', v: 85}, {name:'Year 2', v: 92}, {name:'Year 3', v: 78}, {name:'Year 4', v: 110}, {name:'Year 5', v: 95}, {name:'Year 6', v: 120}, {name:'Year 7', v: 88}, {name:'Year 8', v: 105}
   ], []);
 
-  const attendanceTrend = useMemo(() => [
-    {name:'Mon', present: 92}, {name:'Tue', present: 95}, {name:'Wed', present: 91}, {name:'Thu', present: 96}, {name:'Fri', present: 98}
-  ], []);
+  if (loading) return <LoadingState />;
 
-  const feeData = [
-    {name:'Paid', value: stats.paidFees},
-    {name:'Pending', value: stats.pendingFees}
-  ];
-
-  const COLORS = ['#10b981','#f59e0b'];
+  const enrollmentProgress = stats.targetEnrollment > 0 ? (stats.totalStudents / stats.targetEnrollment) * 100 : 0;
+  const revenueProgress = stats.targetRevenue > 0 ? (stats.totalCollected / stats.targetRevenue) * 100 : 0;
 
   return (
-    <div className="page-shell">
-      {loading ? <LoadingState /> : (
-      <>
-      <div className="hero-card">
+    <div className="page-shell animate-fade">
+      <div className="hero-card" style={{ background: 'var(--primary-navy)', border: 'none', borderRadius: '12px' }}>
         <div>
-          <p className="eyebrow">Operations overview</p>
-          <h2 className="hero-card__title">DICBO School Manager is running in demo mode</h2>
-          <p className="hero-card__subtitle">Track admissions, fee collection, attendance, and academic performance from a single premium dashboard tailored for school leadership.</p>
+          <p className="eyebrow" style={{ color: 'var(--academic-gold)' }}>Institutional Dashboard</p>
+          <h2 style={{ color: '#fff', fontSize: '32px' }}>{settings?.name || 'DIT INTERNATIONALSCHOOL'}</h2>
+          <p style={{ color: 'rgba(255,255,255,0.7)', marginTop: '8px', fontSize: '16px' }}>
+            {settings?.motto || 'Academic Excellence • Trust • Discipline'}
+          </p>
         </div>
-        <div className="hero-badge">● Live demo • Sample data • Local storage</div>
+        <div className="hero-badge" style={{ background: 'var(--academic-gold)', color: 'var(--primary-navy)', border: 'none' }}>
+          ● SESSION ACTIVE: 2026/27
+        </div>
       </div>
 
-      <div className="stat-grid">
-        <div className="stat-card"><div className="label">Total students</div><div className="value counter">{stats.totalStudents}</div><div className="delta">+8% this term</div></div>
-        <div className="stat-card"><div className="label">Fee status</div><div className="value counter">{stats.paidFees}/{stats.paidFees + stats.pendingFees}</div><div className="delta">Paid this month</div></div>
-        <div className="stat-card"><div className="label">Attendance</div><div className="value counter">{stats.attendance}%</div><div className="delta">Above target</div></div>
-        <div className="stat-card"><div className="label">Average score</div><div className="value counter">{stats.avgScore}%</div><div className="delta">Top quartile</div></div>
+      <div className="stat-grid" style={{ marginTop: '20px' }}>
+        <div className="panel-card stat-card">
+          <div className="label">Student Enrollment</div>
+          <div className="value">{stats.totalStudents}</div>
+          <div style={{ marginTop: '12px', height: '4px', background: '#f1f5f9', borderRadius: '2px', overflow: 'hidden' }}>
+            <div style={{ width: `${Math.min(enrollmentProgress, 100)}%`, height: '100%', background: 'var(--academic-gold)' }} />
+          </div>
+          <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '6px' }}>{Math.round(enrollmentProgress)}% of annual target</div>
+        </div>
+
+        <div className="panel-card stat-card">
+          <div className="label">Financial Revenue</div>
+          <div className="value" style={{ fontSize: '22px' }}>{settings?.currency} {stats.totalCollected.toLocaleString()}</div>
+          <div style={{ marginTop: '12px', height: '4px', background: '#f1f5f9', borderRadius: '2px', overflow: 'hidden' }}>
+            <div style={{ width: `${Math.min(revenueProgress, 100)}%`, height: '100%', background: 'var(--academic-gold)' }} />
+          </div>
+          <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '6px' }}>{Math.round(revenueProgress)}% of collection target</div>
+        </div>
+
+        <div className="panel-card stat-card">
+          <div className="label">Attendance Today</div>
+          <div className="value">{stats.attendanceToday}%</div>
+          <div style={{ fontSize: '11px', color: 'var(--success-green)', marginTop: '15px', fontWeight: 700 }}>HIGH PARTICIPATION</div>
+        </div>
+
+        <div className="panel-card stat-card">
+          <div className="label">Human Capital</div>
+          <div className="value">{stats.staffCount}</div>
+          <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '15px' }}>{stats.teacherCount} Academic Staff</div>
+        </div>
       </div>
 
-      <div className="dashboard-grid">
-        <div className="table-card">
-          <div className="page-header" style={{marginBottom:12}}>
-            <div><p className="eyebrow">Enrollment trend</p><h3>Student enrollment</h3></div>
-            <button className="btn btn-secondary">Export Excel</button>
-          </div>
-          <div style={{ height: 240, display: 'flex', alignItems: 'flex-end', gap: 10, paddingTop: 16 }}>
-            {lineData.map((item) => (
-              <div key={item.name} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                <div style={{ width: '100%', height: 180, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-                  <div style={{ width: '100%', maxWidth: 26, height: `${Math.max(20, item.value / 6)}px`, background: 'linear-gradient(180deg, #60a5fa 0%, #2563eb 100%)', borderRadius: 8 }} />
-                </div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>{item.name}</div>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="dashboard-grid" style={{ marginTop: '20px' }}>
         <div className="panel-card">
-          <div className="page-header" style={{marginBottom:12}}>
-            <div><p className="eyebrow">Fee portfolio</p><h3>Collection mix</h3></div>
-            <button className="btn btn-secondary">Export PDF</button>
+          <div className="page-header" style={{ marginBottom: '24px' }}>
+            <div><p className="eyebrow">Academic Growth</p><h3>Level Distribution</h3></div>
           </div>
-          <div style={{ height: 220, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-            <div style={{ width: 140, height: 140, borderRadius: '50%', background: 'conic-gradient(#10b981 0 58%, #f59e0b 58% 100%)', position: 'relative' }}>
-              <div style={{ position: 'absolute', inset: 24, background: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#0f172a' }}>{stats.paidFees + stats.pendingFees}</div>
-            </div>
-            <div style={{ display: 'flex', gap: 16, fontSize: 13, color: '#64748b' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, borderRadius: '50%', background: '#10b981' }} /> Paid</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, borderRadius: '50%', background: '#f59e0b' }} /> Pending</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="dashboard-grid">
-        <div className="table-card">
-          <div className="page-header" style={{marginBottom:12}}>
-            <div><p className="eyebrow">Learning pulse</p><h3>Attendance and exams</h3></div>
-            <button className="btn btn-secondary">Print summary</button>
-          </div>
-          <div style={{ height: 220, display: 'flex', alignItems: 'flex-end', gap: 12, paddingTop: 16 }}>
-            {attendanceTrend.map((item) => (
-              <div key={item.name} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                <div style={{ width: '100%', height: 160, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-                  <div style={{ width: '100%', maxWidth: 28, height: `${item.present}px`, background: 'linear-gradient(180deg, #34d399 0%, #10b981 100%)', borderRadius: 8 }} />
+          <div style={{ height: '240px', display: 'flex', alignItems: 'flex-end', gap: '12px', padding: '0 10px' }}>
+            {enrollmentTrend.map((item) => (
+              <div key={item.name} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '100%', height: '180px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+                  <div style={{ width: '100%', maxWidth: '30px', height: `${(item.v/150)*100}%`, backgroundColor: 'var(--primary-navy)', borderRadius: '4px 4px 0 0', opacity: 0.9 }} />
                 </div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>{item.name}</div>
+                <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>{item.name}</div>
               </div>
             ))}
           </div>
         </div>
-        <div className="list-card">
-          <div className="page-header" style={{marginBottom:12}}>
-            <div><p className="eyebrow">Recent activity</p><h3>Latest updates</h3></div>
-            <span className="badge badge-info">4 new</span>
+
+        <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div>
+            <p className="eyebrow">Quick Access</p>
+            <h3 style={{ marginBottom: '20px' }}>Management Links</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <button onClick={() => navigate('/dashboard/students/new')} className="btn btn-secondary" style={{ padding: '20px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '24px' }}>🎓</span>
+                <span style={{ fontSize: '12px', fontWeight: 700 }}>ADMISSION</span>
+              </button>
+              <button onClick={() => navigate('/dashboard/attendance')} className="btn btn-secondary" style={{ padding: '20px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '24px' }}>🗓️</span>
+                <span style={{ fontSize: '12px', fontWeight: 700 }}>REGISTER</span>
+              </button>
+              <button onClick={() => navigate('/dashboard/fees/new')} className="btn btn-secondary" style={{ padding: '20px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '24px' }}>💰</span>
+                <span style={{ fontSize: '12px', fontWeight: 700 }}>PAYMENT</span>
+              </button>
+              <button onClick={() => navigate('/dashboard/reports')} className="btn btn-secondary" style={{ padding: '20px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '24px' }}>📊</span>
+                <span style={{ fontSize: '12px', fontWeight: 700 }}>REPORTS</span>
+              </button>
+            </div>
           </div>
-          <ul>{recent.map((item) => <li key={item.id}><div><strong>{item.student}</strong><div style={{color:'#64748b', fontSize:13}}>{item.status} • {item.receipt}</div></div><span style={{color:'#2563eb', fontWeight:700}}>{item.date}</span></li>)}</ul>
         </div>
       </div>
-      </>
-      )}
     </div>
-  )
+  );
 }

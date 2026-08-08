@@ -1,24 +1,44 @@
-import DemoPage from '../components/DemoPage';
-
-const librarySeed = [
-  { id: 'lib1', title: 'Introduction to Algebra', author: 'M. Kato', category: 'Mathematics', status: 'Available' },
-  { id: 'lib2', title: 'World History', author: 'R. Nsubuga', category: 'History', status: 'Issued' }
-];
+import React, { useState, useEffect } from 'react';
+import api from '../services/api';
+import TablePage from '../components/TablePage';
 
 export default function Library() {
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchBooks = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get('/library');
+      setBooks(res.data.books || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchBooks(); }, []);
+
+  const columns = [
+    { key: 'title', label: 'Title', render: (val) => <strong>{val}</strong> },
+    { key: 'author', label: 'Author' },
+    { key: 'category', label: 'Category' },
+    { key: 'available', label: 'Availability', render: (val, row) => `${val}/${row.quantity} Books` },
+    { key: 'status', label: 'Status', render: (_, row) => <span className={`badge ${row.available > 0 ? 'badge-success' : 'badge-warning'}`}>{row.available > 0 ? 'In Stock' : 'All Issued'}</span> },
+    { key: 'actions', label: 'Action', render: () => <button className="btn btn-secondary">Issue</button> }
+  ];
+
   return (
-    <DemoPage
-      title="Library catalogue"
-      description="Manage books, availability, and circulation in a library-friendly workflow."
-      storageKey="library"
-      seedData={librarySeed}
-      actions={['edit', 'delete']}
-      columns={[
-        { key: 'title', label: 'Title' },
-        { key: 'author', label: 'Author' },
-        { key: 'category', label: 'Category' },
-        { key: 'status', label: 'Status', render: (value) => <span className={value === 'Available' ? 'badge badge-success' : 'badge badge-warning'}>{value}</span> }
-      ]}
+    <TablePage
+      title="Library Catalog"
+      eyebrow="Resource Center"
+      columns={columns}
+      data={books}
+      loading={loading}
+      onRefresh={fetchBooks}
+      addLabel="Add Book"
+      onAdd={() => alert("Feature coming soon")}
     />
   );
 }

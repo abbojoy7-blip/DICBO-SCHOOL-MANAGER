@@ -1,11 +1,10 @@
 const express = require("express");
 const router = express.Router();
+const { recordPayment, getPayments, getStudentBalance, getFeeStructures } = require("../controllers/feeController");
 
-router.get("/", (req, res) => {
-  res.json([
-    { student: "John Doe", amount: 200000, status: "Paid" },
-    { student: "Sarah Namukasa", amount: 200000, status: "Unpaid" }
-  ]);
-});
+router.get("/", getPayments);
+router.get("/structures", getFeeStructures);
+router.post("/", recordPayment);
+router.get("/balance/:studentId", getStudentBalance);
 
 module.exports = router;

@@ -1,0 +1,34 @@
+services:
+  # Backend API
+  - type: web
+    name: dicbo-api-staging
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        fromContext: MONGO_URI
+      - key: JWT_SECRET
+        fromContext: JWT_SECRET
+      - key: CORS_ORIGIN
+        value: https://dit-erp-portal.vercel.app
+      - key: PORT
+        value: 10000
+
+  # Frontend Dashboard (Redundant Backup)
+  - type: static
+    name: dicbo-erp-staging
+    env: static
+    plan: free
+    buildCommand: cd admin-dashboard && npm install && npm run build
+    staticPublishPath: admin-dashboard/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://dicbo-api-staging.onrender.com/api
+    routes:
+      - type: rewrite
+        src: /*
+        dest: /index.html

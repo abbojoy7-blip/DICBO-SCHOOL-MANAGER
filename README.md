@@ -1,28 +1,55 @@
-<<<<<<< HEAD
-# DICBO School Manager
+# DICBO School Manager 🚀
 
-A school management app for students, fees, attendance, reports, and role-based access.
+A comprehensive, production-ready school management system (ERP) designed for modern educational institutions.
 
-## Project structure
+## 🌟 Version 1.0.0 Production Release
 
-- `server.js` - entry point for the backend API
-- `models/` - Mongoose schemas for users, students, fees, and classes
-- `controllers/` - request handlers
-- `routes/` - API routes by module
-- `config/` - database connection and environment utilities
-- `frontend/` - placeholder for future React or static frontend
+DICBO School Manager is now a multi-tenant SaaS platform capable of handling everything from student admissions and staff management to fee collections and academic reporting across multiple schools.
 
-## Getting started
+## 🛠 Features
+- **Multi-Tenancy**: Complete data isolation for each school.
+- **Security**: JWT Authentication, RBAC, and encrypted password hashing.
+- **Students**: Complete profiles, auto-admission numbering, and registry management.
+- **Finances**: Fee collection, automated receipts, balance tracking, and budget planning.
+- **Academics**: Attendance registers, class management, and subject tracking.
+- **SaaS Control**: Super Admin panel for managing school subscriptions and system health.
+- **Maintenance**: Audit logs and one-click database backups.
 
-1. Install dependencies:
+## 🚀 Quick Start (Production)
+
+1. **Install Dependencies**:
    ```bash
-   npm install
+   npm run install-all
    ```
-2. Create a `.env` file with your MongoDB URI and port.
-3. Start the server:
+2. **Setup Environment**:
+   - Create `.env` from `.env.example`.
+   - Add your `MONGO_URI` and `JWT_SECRET`.
+3. **Seed Initial Data**:
    ```bash
-   npm run dev
+   # Create Super Admin
+   node server/scripts/seedSuperAdmin.js
+   # (Optional) Create professional demo school
+   node server/scripts/seedProductionDemo.js
    ```
-=======
-# DICBO-SCHOOL-MANAGER
->>>>>>> a6a878e9b765e64256d52367e7299bbf1aa5e659
+4. **Build & Start**:
+   ```bash
+   cd admin-dashboard && npm run build
+   npm start
+   ```
+
+## 📖 Documentation
+- [Administrator Manual](./SCHOOL_ADMIN_MANUAL.md)
+- [Platform Owner (Super Admin) Manual](./SUPERADMIN_MANUAL.md)
+- [Technical Documentation](./TECHNICAL_DOCS.md)
+- [Backup & Disaster Recovery Policy](./BACKUP_POLICY.md)
+- [Deployment Guide](./DEPLOYMENT.md)
+
+## 🏗 Project Structure
+- `models/`: Mongoose schemas.
+- `routes/`: API endpoint definitions.
+- `controllers/`: Business logic.
+- `middleware/`: Security, logging, and error handling.
+- `admin-dashboard/`: React (Vite) frontend.
+
+---
+© 2026 DICBO School Manager. Built for excellence in education.

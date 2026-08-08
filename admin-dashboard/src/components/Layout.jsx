@@ -37,9 +37,6 @@ export default function Layout() {
     <div className="app-container">
       <Sidebar onLogout={handleLogout} />
       <div className="main">
-        <div style={{ padding: '8px 16px 0', display: 'flex', justifyContent: 'flex-start' }}>
-          <div className="demo-pill" style={{ background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>Demo Mode — Sample data only</div>
-        </div>
         <Topbar />
         <div className="content" style={{ opacity: ready ? 1 : 0.95 }}>
           {!ready ? <PageLoader /> : (

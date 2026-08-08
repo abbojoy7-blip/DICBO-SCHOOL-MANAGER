@@ -1,69 +1,89 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { seed } from '../data/sampleData';
-import { syncDemoData } from '../data/demoData';
 
-export default function Login(){
-  const [email, setEmail] = useState('admin@demo.com');
-  const [password, setPassword] = useState('demo1234');
-  const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const { login, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  const submit = async (e) =>{
+  const submit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    seed();
-    syncDemoData();
-    try{
+    setError('');
+
+    try {
       const u = await login(email, password);
-      setLoading(false);
-      // redirect based on role
-      const map = {
+      const roleMap = {
         administrator: '/dashboard',
         teacher: '/teacher',
-        student: '/student',
+        accountant: '/finance',
+        receptionist: '/dashboard',
         parent: '/parent',
-        finance: '/finance',
-        librarian: '/librarian',
-        transport: '/transport'
+        student: '/student'
       };
-      navigate(map[u.role] || '/dashboard');
-    }catch(err){
-      setLoading(false);
-      alert('Invalid demo credentials');
+      navigate(roleMap[u.role] || '/dashboard');
+    } catch (err) {
+      setError(err.message || 'Invalid credentials');
     }
-  }
+  };
 
   return (
-    <div className="login-shell">
-      <div className="login-card">
-        <div className="login-hero">
-          <div>
-            <div className="demo-pill">● Demo Mode • Sample school data</div>
-            <h1 style={{fontSize:32, margin:'16px 0 10px'}}>DICBO School Manager</h1>
-            <p style={{color:'rgba(255,255,255,.88)', maxWidth:360}}>A premium school administration experience for admissions, attendance, finances, academics, and parent communication.</p>
-          </div>
-          <div className="notice" style={{background:'rgba(255,255,255,.12)', color:'white', border:'1px solid rgba(255,255,255,.18)'}}>
-            <strong>Trusted by forward-looking schools</strong>
-            <div style={{marginTop:6}}>Realistic dashboards, secure workflows, and polished presentation-ready views.</div>
-          </div>
+    <div className="login-shell" style={{ backgroundColor: 'var(--primary-navy)', background: 'linear-gradient(135deg, #0B1F3A 0%, #163D6B 100%)' }}>
+      <div className="login-card" style={{ maxWidth: '450px', gridTemplateColumns: '1fr', padding: '40px', border: '1px solid rgba(255,255,255,0.1)' }}>
+
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <div style={{ width: '70px', height: '70px', background: 'var(--academic-gold)', color: 'var(--primary-navy)', borderRadius: '12px', margin: '0 auto 20px', display: 'grid', placeItems: 'center', fontSize: '36px', fontWeight: 900 }}>D</div>
+          <h2 style={{ color: 'var(--primary-navy)', fontSize: '24px', fontWeight: 800 }}>DIT INTERNATIONALSCHOOL</h2>
+          <p style={{ color: '#64748b', fontSize: '14px', marginTop: '8px' }}>Global Education Management System</p>
         </div>
-        <form className="login-form" onSubmit={submit}>
-          <div style={{marginBottom:8}}>
-            <p className="eyebrow">Secure access</p>
-            <h2 style={{fontSize:24}}>Welcome back</h2>
-            <p style={{color:'#64748b', marginTop:4}}>Sign in to explore the demo portal.</p>
+
+        <form className="login-form" onSubmit={submit} style={{ padding: 0 }}>
+          {error && (
+            <div style={{ color: 'var(--error-burgundy)', backgroundColor: '#fdf2f2', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontSize: '13px', textAlign: 'center', fontWeight: 600 }}>
+              {error}
+            </div>
+          )}
+
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ fontSize: '11px', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.05em', color: '#64748b' }}>Account Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="admin@dit.edu"
+              required
+              style={{ marginTop: '6px' }}
+            />
           </div>
-          <label>Email address</label>
-          <input value={email} onChange={e=>setEmail(e.target.value)} />
-          <label>Password</label>
-          <input value={password} onChange={e=>setPassword(e.target.value)} type="password" />
-          <button disabled={loading} className="btn btn-primary" style={{width:'100%', marginTop:8}}>{loading ? 'Signing in...' : 'Sign in'}</button>
-          <div className="notice" style={{marginTop:4}}>Use the demo account email of your choice with password <strong>demo1234</strong>.</div>
+
+          <div style={{ marginBottom: '24px' }}>
+            <label style={{ fontSize: '11px', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.05em', color: '#64748b' }}>Security Password</label>
+            <input
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              type="password"
+              placeholder="••••••••"
+              required
+              style={{ marginTop: '6px' }}
+            />
+          </div>
+
+          <button disabled={authLoading} className="btn btn-primary" style={{ width: '100%', padding: '14px', background: 'var(--primary-navy)' }}>
+            {authLoading ? 'Verifying Access...' : 'Sign In to Portal'}
+          </button>
+
+          <div style={{ marginTop: '30px', textAlign: 'center' }}>
+            <p style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              DIT ERP v1.0.0 • Production Stable
+            </p>
+            <p style={{ fontSize: '10px', color: '#64748b', marginTop: '8px', fontWeight: 600 }}>
+              Powered By Dot Inspiration Technologies
+            </p>
+          </div>
         </form>
       </div>
     </div>
-  )
+  );
 }
