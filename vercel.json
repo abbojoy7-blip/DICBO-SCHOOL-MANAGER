@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "dit-erp-portal",
+  "name": "dicbo-school-manager",
   "builds": [
     {
       "src": "admin-dashboard/package.json",
@@ -13,7 +13,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "https://dicbo-api-staging.onrender.com/api/$1"
+      "dest": "https://dicbo-school-manager-api.onrender.com/api/$1"
     },
     {
       "src": "/(.*)",
@@ -26,6 +26,6 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "https://dicbo-api-staging.onrender.com/api"
+    "VITE_API_URL": "https://dicbo-school-manager-api.onrender.com/api"
   }
 }
