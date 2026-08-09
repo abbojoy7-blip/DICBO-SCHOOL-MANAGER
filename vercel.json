@@ -1,28 +1,10 @@
 {
   "version": 2,
   "name": "dicbo-school-manager",
-  "builds": [
+  "rewrites": [
     {
-      "src": "admin-dashboard/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "https://dicbo-school-manager-api.onrender.com/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/admin-dashboard/dist/$1",
-      "continue": true
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/admin-dashboard/dist/index.html"
+      "source": "/api/(.*)",
+      "destination": "https://dicbo-school-manager-api.onrender.com/api/$1"
     }
   ],
   "env": {

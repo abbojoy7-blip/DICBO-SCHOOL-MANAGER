@@ -1,22 +1,17 @@
 {
   "version": 2,
-  "builds": [
+  "framework": "vite",
+  "rewrites": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "http://your-backend-api.com/api/$1"
+      "source": "/api/(.*)",
+      "destination": "https://dicbo-school-manager-api.onrender.com/api/$1"
     },
     {
-      "src": "(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
-  ]
+  ],
+  "env": {
+    "VITE_API_URL": "https://dicbo-school-manager-api.onrender.com/api"
+  }
 }

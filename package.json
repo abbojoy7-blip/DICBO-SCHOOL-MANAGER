@@ -5,6 +5,7 @@
     "start": "node server.js",
     "server": "nodemon server.js",
     "client": "npm run dev --prefix admin-dashboard",
+    "build": "npm run build --prefix admin-dashboard",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "install-all": "npm install && npm install --prefix admin-dashboard && npm install --prefix server"
   },
