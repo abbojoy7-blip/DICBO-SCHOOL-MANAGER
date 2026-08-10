@@ -7,7 +7,8 @@
     "client": "npm run dev --prefix admin-dashboard",
     "build": "npm run build --prefix admin-dashboard",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "install-all": "npm install && npm install --prefix admin-dashboard && npm install --prefix server"
+    "install-all": "npm install && npm install --prefix admin-dashboard && npm install --prefix server",
+    "prod:admin": "node server/scripts/createProductionAdmin.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
